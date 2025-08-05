@@ -1,0 +1,4 @@
+name: CreatRecipeUI
+version: '1.0-SNAPSHOT'
+main: com.github.wcy6457.creatRecipeUI.CreatRecipeUI
+api-version: '1.21'
