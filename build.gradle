@@ -16,7 +16,10 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.6-R0.1-SNAPSHOT")
+    implementation 'me.devnatan:inventory-framework-api:3.5.1'
+    implementation 'me.devnatan:inventory-framework-platform-bukkit:3.5.1'
 }
+
 
 tasks {
     runServer {
