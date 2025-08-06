@@ -9,6 +9,7 @@ public final class CreatRecipeUI extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         RecipeManager rm = new RecipeManager(this);
+        //对象rm将从 resources/recipes.yml 加载配方
         rm.recipeRegister();
     }
 

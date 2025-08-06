@@ -1,0 +1,10 @@
+recipes:
+  test_sword:
+    result: DIAMOND_SWORD
+    shape:
+      - " D "
+      - " D "
+      - " S "
+    ingredients:
+      D: DIRT
+      S: STICK
