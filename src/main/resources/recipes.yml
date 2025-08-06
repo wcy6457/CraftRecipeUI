@@ -1,10 +1,17 @@
 recipes:
   test_sword:
-    result: DIAMOND_SWORD
+    result: minecraft:diamond_sword
     shape:
       - " D "
       - " D "
       - " S "
     ingredients:
-      D: DIRT
-      S: STICK
+      D: minecraft:dirt
+      S: minecraft:stick
+
+  test_diamond:
+    result: minecraft:diamond
+    shape:
+      - "DDD"
+    ingredients:
+      D: minecraft:dirt

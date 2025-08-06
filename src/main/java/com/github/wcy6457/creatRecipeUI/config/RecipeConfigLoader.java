@@ -29,19 +29,32 @@ public class RecipeConfigLoader {
 
         for (String key : config.getConfigurationSection("recipes").getKeys(false)) {
             String path = "recipes." + key;
-            Material result = Material.valueOf(config.getString(path + ".result"));
-            List<String> shape = config.getStringList(path + ".shape");
 
+            // 使用 matchMaterial 支持命名空间ID
+            String resultId = config.getString(path + ".result");
+            Material result = Material.matchMaterial(resultId);
+            if (result == null) {
+                plugin.getLogger().warning("无效的结果物品ID: " + resultId + "，跳过配方: " + key);
+                continue;
+            }
+
+            List<String> shape = config.getStringList(path + ".shape");
             Map<Character, Material> ingredients = new HashMap<>();
+
             for (String symbol : config.getConfigurationSection(path + ".ingredients").getKeys(false)) {
-                Material mat = Material.valueOf(config.getString(path + ".ingredients." + symbol));
+                String ingredientId = config.getString(path + ".ingredients." + symbol);
+                Material mat = Material.matchMaterial(ingredientId);
+                if (mat == null) {
+                    plugin.getLogger().warning("无效的原料物品ID: " + ingredientId + "，符号: " + symbol + "，跳过配方: " + key);
+                    continue;
+                }
                 ingredients.put(symbol.charAt(0), mat);
             }
 
             recipes.add(new RecipeData(key, result, shape, ingredients));
         }
 
-        plugin.getLogger().info("CreatRecipeUI从yml中加载了"+recipes.size()+"个配方数据");
+        plugin.getLogger().info("CreatRecipeUI从yml中加载了" + recipes.size() + "个配方数据");
 
         return recipes;
     }
@@ -60,3 +73,4 @@ public class RecipeConfigLoader {
         }
     }
 }
+
