@@ -3,7 +3,7 @@ package com.github.wcy6457.creatRecipeUI.config;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.*;
@@ -11,9 +11,9 @@ import java.util.*;
 public class RecipeConfigLoader {
 
     private final FileConfiguration config;
-    private final Plugin plugin;
+    private final JavaPlugin plugin;
 
-    public RecipeConfigLoader(File dataFolder, Plugin plugin) {
+    public RecipeConfigLoader(File dataFolder, JavaPlugin plugin) {
         File file = new File(dataFolder, "recipes.yml");
         if (!file.exists()) {
             plugin.getLogger().warning("CreatRecipeUI找不到recipes.yml,将生成一个带示例的文件");
@@ -32,6 +32,9 @@ public class RecipeConfigLoader {
 
             // 使用 matchMaterial 支持命名空间ID
             String resultId = config.getString(path + ".result");
+            if(resultId == null){
+                plugin.getLogger().warning("在"+path+"中未找到result，请检查是否配置错误");
+            }
             Material result = Material.matchMaterial(resultId);
             if (result == null) {
                 plugin.getLogger().warning("无效的结果物品ID: " + resultId + "，跳过配方: " + key);
@@ -39,8 +42,8 @@ public class RecipeConfigLoader {
             }
 
             List<String> shape = config.getStringList(path + ".shape");
-            Map<Character, Material> ingredients = new HashMap<>();
 
+            Map<Character, Material> ingredients = new HashMap<>();
             for (String symbol : config.getConfigurationSection(path + ".ingredients").getKeys(false)) {
                 String ingredientId = config.getString(path + ".ingredients." + symbol);
                 Material mat = Material.matchMaterial(ingredientId);
@@ -54,23 +57,12 @@ public class RecipeConfigLoader {
             recipes.add(new RecipeData(key, result, shape, ingredients));
         }
 
-        plugin.getLogger().info("CreatRecipeUI从yml中加载了" + recipes.size() + "个配方数据");
+        plugin.getLogger().info("CreatRecipeUI从yml中加载了" + recipes.size() + "个配方数据,即将向bukkit注册");
 
         return recipes;
     }
 
-    public static class RecipeData {
-        public final String key;
-        public final Material result;
-        public final List<String> shape;
-        public final Map<Character, Material> ingredients;
-
-        public RecipeData(String key, Material result, List<String> shape, Map<Character, Material> ingredients) {
-            this.key = key;
-            this.result = result;
-            this.shape = shape;
-            this.ingredients = ingredients;
-        }
+    public record RecipeData(String key, Material result, List<String> shape, Map<Character, Material> ingredients) {
     }
 }
 

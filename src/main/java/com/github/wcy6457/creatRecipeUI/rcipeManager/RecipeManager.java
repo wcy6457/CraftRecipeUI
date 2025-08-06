@@ -10,6 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class RecipeManager {
 
     private final JavaPlugin plugin;
+    public int sum = 0;             //成功注册计数
+    public int err_sum = 0;         //注册失败计数
 
     public RecipeManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -21,16 +23,28 @@ public class RecipeManager {
             /*
             填充即将注册的配方
             */
-            NamespacedKey key = new NamespacedKey(plugin, data.key);
-            ItemStack result = new ItemStack(data.result);
+            NamespacedKey key = new NamespacedKey(plugin, data.key());
+            ItemStack result = new ItemStack(data.result());
             ShapedRecipe recipe = new ShapedRecipe(key, result);
 
-            recipe.shape(data.shape.toArray(new String[0]));
-            data.ingredients.forEach(recipe::setIngredient);
+            recipe.shape(data.shape().toArray(new String[0]));
+            data.ingredients().forEach(recipe::setIngredient);
 
 
-            Bukkit.addRecipe(recipe);
-            //向bukkit注册配方
+            try {
+                Bukkit.addRecipe(recipe);
+            } catch (Exception e) {
+                err_sum++;
+                continue;
+            }
+            sum++;
+            //向bukkit注册配方,同时计数。
         }
+
+        if (err_sum != 0) {
+            plugin.getLogger().warning("共有"+err_sum+"个配方加载失败");
+        }
+
+        plugin.getLogger().info("共有"+sum+"个配方加载成功");
     }
 }
