@@ -18,7 +18,7 @@ public class RecipeManager {
     }
 
     public void recipeRegister() {
-        RecipeConfigLoader loader = new RecipeConfigLoader(plugin.getDataFolder(),plugin);
+        RecipeConfigLoader loader = new RecipeConfigLoader(plugin.getDataFolder(),plugin,this);
         for (RecipeConfigLoader.RecipeData data : loader.loadRecipes()) {// loader 实现了从 yml 文件中加载配方
             /*
             填充即将注册的配方
