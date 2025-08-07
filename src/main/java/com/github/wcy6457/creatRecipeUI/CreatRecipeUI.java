@@ -14,7 +14,7 @@ public final class CreatRecipeUI extends JavaPlugin {
         saveDefaultConfig();
 
         this.languageManager = new LanguageManager(this);
-        this.languageManager.load(getConfig().getString("default-language", "en_US"));
+        this.languageManager.load(getConfig().getString("language", "en_US"));
 
         Bukkit.getLogger().info("—————————————————————");
         Bukkit.getLogger().info(this.languageManager.get("log.plugin_onEnable"));
