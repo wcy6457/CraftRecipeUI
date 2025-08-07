@@ -1,4 +1,4 @@
-package com.github.wcy6457.creatRecipeUI.rcipeManager;
+package com.github.wcy6457.creatRecipeUI.manager;
 
 import com.github.wcy6457.creatRecipeUI.config.RecipeConfigLoader;
 import org.bukkit.Bukkit;
@@ -17,7 +17,7 @@ public class RecipeManager {
         this.plugin = plugin;
     }
 
-    public void recipeRegister() {
+    public void registerRecipe() {
         RecipeConfigLoader loader = new RecipeConfigLoader(plugin.getDataFolder(),plugin,this);
         for (RecipeConfigLoader.RecipeData data : loader.loadRecipes()) {// loader 实现了从 yml 文件中加载配方
             /*
