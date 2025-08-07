@@ -1,10 +1,13 @@
 package com.github.wcy6457.creatRecipeUI;
 
-import com.github.wcy6457.creatRecipeUI.rcipeManager.RecipeManager;
+import com.github.wcy6457.creatRecipeUI.manager.RecipeManager;
+import com.github.wcy6457.creatRecipeUI.manager.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CreatRecipeUI extends JavaPlugin {
+
+    LanguageManager languageManager;
 
     @Override
     public void onEnable() {
@@ -14,7 +17,14 @@ public final class CreatRecipeUI extends JavaPlugin {
         Bukkit.getLogger().info("—————————————————————");
         RecipeManager rm = new RecipeManager(this);
         //对象rm将从 resources/recipes.yml 加载配方
-        rm.recipeRegister();
+        rm.registerRecipe();
+
+        String locale = getConfig().getString("default-language", "en_US");
+
+        this.languageManager = new LanguageManager(this);
+        this.languageManager.load(locale);
+
+        getLogger().info(this.languageManager.get("log.recipe_created", "Iron Sword"));
     }
 
     @Override

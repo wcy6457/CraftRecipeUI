@@ -1,6 +1,6 @@
 package com.github.wcy6457.creatRecipeUI.config;
 
-import com.github.wcy6457.creatRecipeUI.rcipeManager.RecipeManager;
+import com.github.wcy6457.creatRecipeUI.manager.RecipeManager;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,10 +17,12 @@ public class RecipeConfigLoader {
 
     public RecipeConfigLoader(File dataFolder, JavaPlugin plugin, RecipeManager rm) {
         File file = new File(dataFolder, "recipes.yml");
+
         if (!file.exists()) {
             plugin.getLogger().warning("CreatRecipeUI找不到recipes.yml,将生成一个带示例的文件");
             plugin.saveResource("recipes.yml", false);
         }
+
         this.config = YamlConfiguration.loadConfiguration(file);
         this.plugin = plugin;
         this.rm = rm;
@@ -43,7 +45,7 @@ public class RecipeConfigLoader {
             try {
                 result = Material.matchMaterial(resultId);
             } catch (Exception e) {
-                plugin.getLogger().warning("无效的结果物品ID: " + resultId + "，跳过配方: " + key);
+                plugin.getLogger().warning("无效的结果物品ID: " + resultId + "，位于：" + path + "，跳过配方: " + key);
                 this.rm.err_sum++;
                 continue;
             }
@@ -57,7 +59,7 @@ public class RecipeConfigLoader {
                 try {
                     mat = Material.matchMaterial(ingredientId);
                 } catch (Exception e) {
-                    plugin.getLogger().warning("无效的原料物品ID: " + ingredientId + "，符号: " + symbol + "，跳过配方: " + key);
+                    plugin.getLogger().warning("无效的原料物品ID: " + ingredientId + "，位于：" + path + "，符号: " + symbol + "，跳过配方: " + key);
                     this.rm.err_sum++;
                     continue;
                 }
