@@ -39,7 +39,7 @@ public class RecipeConfigLoader {
             // 使用 matchMaterial 支持命名空间ID
             String resultId = config.getString(path + ".result");
 
-            Material result = null;
+            Material result;
             try {
                 result = Material.matchMaterial(resultId);
             } catch (Exception e) {
@@ -53,7 +53,7 @@ public class RecipeConfigLoader {
             Map<Character, Material> ingredients = new HashMap<>();
             for (String symbol : config.getConfigurationSection(path + ".ingredients").getKeys(false)) {
                 String ingredientId = config.getString(path + ".ingredients." + symbol);
-                Material mat = null;
+                Material mat;
                 try {
                     mat = Material.matchMaterial(ingredientId);
                 } catch (Exception e) {
