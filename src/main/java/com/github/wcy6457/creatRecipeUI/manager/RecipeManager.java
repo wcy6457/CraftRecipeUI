@@ -1,19 +1,19 @@
 package com.github.wcy6457.creatRecipeUI.manager;
 
+import com.github.wcy6457.creatRecipeUI.CreatRecipeUI;
 import com.github.wcy6457.creatRecipeUI.config.RecipeConfigLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class RecipeManager {
 
-    private final JavaPlugin plugin;
+    private final CreatRecipeUI plugin;
     public int sum = 0;             //成功注册计数
     public int err_sum = 0;         //注册失败计数
 
-    public RecipeManager(JavaPlugin plugin) {
+    public RecipeManager(CreatRecipeUI plugin) {
         this.plugin = plugin;
     }
 
@@ -42,9 +42,9 @@ public class RecipeManager {
         }
 
         if (err_sum != 0) {
-            plugin.getLogger().warning("共有"+err_sum+"个配方加载失败");
+            plugin.getLogger().warning(plugin.languageManager.get("warn_log.load_recipe_err" , err_sum));
         }
 
-        plugin.getLogger().info("共有"+sum+"个配方加载成功");
+        plugin.getLogger().info(plugin.languageManager.get("log.load_recipe_success" , sum));
     }
 }

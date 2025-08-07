@@ -1,0 +1,13 @@
+gui:
+  confirm: "确认"
+
+log:
+  plugin_onEnable: "CreatRecipeUI 正在启动......"
+  load_recipe_success: "共有{0}个配方加载成功"
+  recipe_before_reg: "CreatRecipeUI从yml中加载了{0}个配方数据，即将向bukkit注册"
+
+warn_log:
+  load_recipe_err: "共有{0}个配方加载失败"
+  yml_file_not_found: "CreatRecipeUI找不到recipes.yml,将生成一个带示例的文件"
+  yml_error: "请检查recipes.yml文件！"
+  yml_err_ID: "无效的物品ID：{0}，位于：{1}，跳过配方：{2}"

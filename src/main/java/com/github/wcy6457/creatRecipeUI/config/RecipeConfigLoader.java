@@ -1,10 +1,10 @@
 package com.github.wcy6457.creatRecipeUI.config;
 
+import com.github.wcy6457.creatRecipeUI.CreatRecipeUI;
 import com.github.wcy6457.creatRecipeUI.manager.RecipeManager;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.*;
@@ -12,14 +12,14 @@ import java.util.*;
 public class RecipeConfigLoader {
 
     private final FileConfiguration config;
-    private final JavaPlugin plugin;
+    private final CreatRecipeUI plugin;
     private final RecipeManager rm;
 
-    public RecipeConfigLoader(File dataFolder, JavaPlugin plugin, RecipeManager rm) {
+    public RecipeConfigLoader(File dataFolder, CreatRecipeUI plugin, RecipeManager rm) {
         File file = new File(dataFolder, "recipes.yml");
 
         if (!file.exists()) {
-            plugin.getLogger().warning("CreatRecipeUI找不到recipes.yml,将生成一个带示例的文件");
+            plugin.getLogger().warning(plugin.languageManager.get("warn_log.yml_file_not_found"));
             plugin.saveResource("recipes.yml", false);
         }
 
@@ -31,7 +31,7 @@ public class RecipeConfigLoader {
     public List<RecipeData> loadRecipes() {
         List<RecipeData> recipes = new ArrayList<>();
         if (!config.contains("recipes")){
-            plugin.getLogger().warning("请检查recipes.yml文件！");
+            plugin.getLogger().warning(plugin.languageManager.get("warn_log.yml_error"));
             return recipes;
         }
 
@@ -45,7 +45,7 @@ public class RecipeConfigLoader {
             try {
                 result = Material.matchMaterial(resultId);
             } catch (Exception e) {
-                plugin.getLogger().warning("无效的结果物品ID: " + resultId + "，位于：" + path + "，跳过配方: " + key);
+                plugin.getLogger().warning(plugin.languageManager.get("warn_log.yml_err_ID" , resultId , path , key));
                 this.rm.err_sum++;
                 continue;
             }
@@ -59,7 +59,7 @@ public class RecipeConfigLoader {
                 try {
                     mat = Material.matchMaterial(ingredientId);
                 } catch (Exception e) {
-                    plugin.getLogger().warning("无效的原料物品ID: " + ingredientId + "，位于：" + path + "，符号: " + symbol + "，跳过配方: " + key);
+                    plugin.getLogger().warning(plugin.languageManager.get("warn_log.yml_err_ID" , resultId , path , key));
                     this.rm.err_sum++;
                     continue;
                 }
@@ -69,7 +69,7 @@ public class RecipeConfigLoader {
             recipes.add(new RecipeData(key, result, shape, ingredients));
         }
 
-        plugin.getLogger().info("CreatRecipeUI从yml中加载了" + recipes.size() + "个配方数据,即将向bukkit注册");
+        plugin.getLogger().info(plugin.languageManager.get("log.recipe_before_reg" , recipes.size()));
 
         return recipes;
     }

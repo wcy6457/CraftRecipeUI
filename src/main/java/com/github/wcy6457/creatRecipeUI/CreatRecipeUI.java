@@ -7,24 +7,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CreatRecipeUI extends JavaPlugin {
 
-    LanguageManager languageManager;
+    public LanguageManager languageManager;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        saveDefaultConfig();
+
+        this.languageManager = new LanguageManager(this);
+        this.languageManager.load(getConfig().getString("default-language", "en_US"));
+
         Bukkit.getLogger().info("—————————————————————");
-        Bukkit.getLogger().info("|CreatRecipeUI正在启动|");
+        Bukkit.getLogger().info(this.languageManager.get("log.plugin_onEnable"));
         Bukkit.getLogger().info("—————————————————————");
         RecipeManager rm = new RecipeManager(this);
         //对象rm将从 resources/recipes.yml 加载配方
         rm.registerRecipe();
 
-        String locale = getConfig().getString("default-language", "en_US");
-
-        this.languageManager = new LanguageManager(this);
-        this.languageManager.load(locale);
-
-        getLogger().info(this.languageManager.get("log.recipe_created", "Iron Sword"));
     }
 
     @Override
