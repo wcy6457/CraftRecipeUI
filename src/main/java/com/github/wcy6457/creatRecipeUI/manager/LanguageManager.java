@@ -11,7 +11,8 @@ import java.util.Map;
 public class LanguageManager {
     private final CreatRecipeUI plugin;
     private final Map<String, String> messages = new HashMap<>();
-    private String currentLocale = "en_US";
+    private String currentLocale = "en_us";
+    //fuck you bukkit!
     private final int expectedVersion = 1;
 
     public LanguageManager(CreatRecipeUI plugin) {

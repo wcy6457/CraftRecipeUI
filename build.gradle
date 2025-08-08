@@ -1,6 +1,67 @@
+//plugins {
+//    id 'java'
+//    id("xyz.jpenilla.run-paper") version "2.3.1"
+//}
+//
+//group = 'com.github.wcy6457'
+//version = '1.0-SNAPSHOT'
+//
+//repositories {
+//    mavenCentral()
+//    maven {
+//        name = "spigotmc-repo"
+//        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+//    }
+//    maven {
+//        url 'https://oss.sonatype.org/content/repositories/snapshots'
+//    }
+//}
+//
+//dependencies {
+//    compileOnly("org.spigotmc:spigot-api:1.21.6-R0.1-SNAPSHOT")
+//    implementation 'me.devnatan:inventory-framework-platform-bukkit:3.5.1'
+//}
+//
+//
+//tasks {
+//    runServer {
+//        // Configure the Minecraft version for our task.
+//        // This is the only required configuration besides applying the plugin.
+//        // Your plugin's jar (or shadowJar if present) will be used automatically.
+//        minecraftVersion("1.21")
+//    }
+//}
+//
+//def targetJavaVersion = 21
+//java {
+//    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+//    sourceCompatibility = javaVersion
+//    targetCompatibility = javaVersion
+//    if (JavaVersion.current() < javaVersion) {
+//        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+//    }
+//}
+//
+//tasks.withType(JavaCompile).configureEach {
+//    options.encoding = 'UTF-8'
+//
+//    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+//        options.release.set(targetJavaVersion)
+//    }
+//}
+//
+//processResources {
+//    def props = [version: version]
+//    inputs.properties props
+//    filteringCharset 'UTF-8'
+//    filesMatching('plugin.yml') {
+//        expand props
+//    }
+//}
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'com.github.johnrengelman.shadow' version '8.1.1' // 添加 shadow 插件
 }
 
 group = 'com.github.wcy6457'
@@ -12,25 +73,37 @@ repositories {
         name = "spigotmc-repo"
         url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
     }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+    maven {
+        url 'https://repo.tcoded.com/releases'
+    }
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.6-R0.1-SNAPSHOT")
-    implementation 'me.devnatan:inventory-framework-api:3.5.1'
     implementation 'me.devnatan:inventory-framework-platform-bukkit:3.5.1'
 }
 
-
 tasks {
     runServer {
-        // Configure the Minecraft version for our task.
-        // This is the only required configuration besides applying the plugin.
-        // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("1.21")
     }
+
+    // 配置 shadowJar 任务以包含依赖
+    shadowJar {
+        // 可选：重定向依赖以避免冲突
+        relocate 'me.devnatan', "${group}.inventoryframework"
+        // 确保输出的 JAR 替换默认 JAR
+        archiveClassifier.set('')
+    }
+
+    // 确保在运行服务器前构建 shadowJar
+    runServer.dependsOn shadowJar
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 17
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion

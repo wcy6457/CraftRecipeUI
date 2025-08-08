@@ -39,12 +39,15 @@ public class CommandHandler implements CommandExecutor {
                 }
 
                 String lang = args[1].toLowerCase();
-                switch (lang) {
-                    case "zh", "en" -> {
-                        plugin.languageManager.reload(lang);
-                        player.sendMessage(plugin.languageManager.get("player_info.command_lang_success", lang));
-                    }
-                    default -> player.sendMessage(plugin.languageManager.get("player_info.command_lang_err", lang));
+
+                if (lang.equals("zh_cn") || lang.equals("en_us")) {
+                    plugin.getConfig().set("language", lang);
+                    plugin.saveConfig();
+
+                    plugin.languageManager.reload(lang);
+                    player.sendMessage(plugin.languageManager.get("player_info.command_lang_success", lang));
+                } else {
+                    player.sendMessage(plugin.languageManager.get("player_info.command_lang_err", lang));
                 }
             }
             default -> player.sendMessage(plugin.languageManager.get("player_info.command_error"));
