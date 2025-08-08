@@ -2,6 +2,7 @@ version: 1
 
 gui:
   confirm: "确认"
+  title_menu: "菜单"
 
 log:
   plugin_onEnable: "CreatRecipeUI 正在启动......"

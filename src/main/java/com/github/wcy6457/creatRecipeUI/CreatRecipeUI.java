@@ -21,16 +21,17 @@ public final class CreatRecipeUI extends JavaPlugin {
         this.languageManager = new LanguageManager(this);
         this.languageManager.load(getConfig().getString("language", "en_us"));
 
-        Bukkit.getLogger().info("—————————————————————");
+        Bukkit.getLogger().info("—————————————————————————————————————————");
         Bukkit.getLogger().info(this.languageManager.get("log.plugin_onEnable"));
-        Bukkit.getLogger().info("—————————————————————");
+        Bukkit.getLogger().info("—————————————————————————————————————————");
 
 
         RecipeManager rm = new RecipeManager(this);
         //对象rm将从 resources/recipes.yml 加载配方
         rm.registerRecipe();
 
-        this.uiManager =new UIManager(this);
+        this.uiManager = new UIManager(this);
+        this.uiManager.registerUI();
 
         PluginCommand cruCommand = getCommand("cru");
         if (cruCommand != null) {

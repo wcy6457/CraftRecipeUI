@@ -6,16 +6,14 @@ import me.devnatan.inventoryframework.ViewFrame;
 
 public class UIManager {
     private final CreatRecipeUI plugin;
-    public ViewFrame menu;
+    public final ViewFrame viewFrame;
 
     public UIManager(CreatRecipeUI plugin) {
         this.plugin = plugin;
+        this.viewFrame = ViewFrame.create(this.plugin);
     }
 
     public void registerUI() {
-        this.menu = ViewFrame.create(this.plugin)
-                .with(new Menu())
-                .register();
-
+        this.viewFrame.with(new Menu(plugin)).register();
     }
 }

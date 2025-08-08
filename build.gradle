@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id 'com.github.johnrengelman.shadow' version '8.1.1' // 添加 shadow 插件
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.github.wcy6457'
@@ -24,6 +24,7 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.21.6-R0.1-SNAPSHOT")
     implementation 'me.devnatan:inventory-framework-platform-bukkit:3.5.1'
+    implementation "com.tcoded:FoliaLib:0.5.1"
 }
 
 tasks {
@@ -33,9 +34,8 @@ tasks {
 
     // 配置 shadowJar 任务以包含依赖
     shadowJar {
-        // 可选：重定向依赖以避免冲突
-        relocate 'me.devnatan', "${group}.inventoryframework"
-        // 确保输出的 JAR 替换默认 JAR
+        relocate 'me.devnatan', "libs"
+        relocate 'com.tcoded', "libs"
         archiveClassifier.set('')
     }
 

@@ -1,11 +1,12 @@
 package com.github.wcy6457.creatRecipeUI.command;
 
 import com.github.wcy6457.creatRecipeUI.CreatRecipeUI;
-import me.devnatan.inventoryframework.ViewFrame;
+import com.github.wcy6457.creatRecipeUI.ui.Menu;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandHandler implements CommandExecutor {
 
@@ -16,7 +17,7 @@ public class CommandHandler implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(plugin.languageManager.get("player_info.command_not_player"));
             return true;
@@ -28,10 +29,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         switch (args[0].toLowerCase()) {
-            case "menu" -> {
-                //TODO
-                player.sendMessage("菜单功能尚未实现。");
-            }
+            case "menu" -> this.plugin.uiManager.viewFrame.open(Menu.class , player);
             case "lang" -> {
                 if (args.length < 2) {
                     player.sendMessage(plugin.languageManager.get("player_info.command_lang"));
