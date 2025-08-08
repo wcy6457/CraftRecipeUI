@@ -12,12 +12,16 @@ public class LanguageManager {
     private final CreatRecipeUI plugin;
     private final Map<String, String> messages = new HashMap<>();
     private String currentLocale = "en_US";
+    private final int expectedVersion = 1;
 
     public LanguageManager(CreatRecipeUI plugin) {
         this.plugin = plugin;
     }
 
     public void load(String locale) {
+        ensureLangFileExists(locale);
+        //提取语言文件
+
         this.currentLocale = locale;
         messages.clear();
 
@@ -28,6 +32,22 @@ public class LanguageManager {
         }
 
         YamlConfiguration config = YamlConfiguration.loadConfiguration(langFile);
+
+        int fileVersion = config.getInt("version", -1);
+
+        if (fileVersion < this.expectedVersion) {
+            plugin.getLogger().warning("Language file version outdated: " + locale);
+
+            if (langFile.renameTo(new File(langFile.getParent(), locale + ".yml.bak"))) {
+                // 从 jar 中提取最新语言文件
+                plugin.saveResource("lang/" + locale + ".yml", true);
+                plugin.getLogger().info("Extracted the latest language file from the jar: " + locale + ".yml");
+                config = YamlConfiguration.loadConfiguration(langFile);
+            } else {
+                plugin.getLogger().warning("Encountered an issue, unable to update the language file");
+            }
+        }
+
         for (String key : config.getKeys(true)) {
             if (!config.isConfigurationSection(key)) {
                 messages.put(key, config.getString(key));
@@ -55,4 +75,23 @@ public class LanguageManager {
     public String getCurrentLocale() {
         return currentLocale;
     }
+
+    public void reload(String lang) {
+        this.load(lang);
+    }
+
+    private void ensureLangFileExists(String locale) {
+        File langDir = new File(plugin.getDataFolder(), "lang");
+        if (!langDir.exists()) {
+            langDir.mkdirs();
+        }
+
+        File langFile = new File(langDir, locale + ".yml");
+        if (!langFile.exists()) {
+            plugin.saveResource("lang/" + locale + ".yml", false);
+            plugin.getLogger().info("Extracted default language file: " + locale + ".yml");
+        }
+    }
+
+
 }

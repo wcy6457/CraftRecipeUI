@@ -1,4 +1,7 @@
+version: 1
+
 gui:
   confirm: "Confirm"
+
 log:
   plugin_onEnable: "CreatRecipeUI LOADING......"

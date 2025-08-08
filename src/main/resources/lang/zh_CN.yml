@@ -1,3 +1,5 @@
+version: 1
+
 gui:
   confirm: "确认"
 
@@ -11,3 +13,10 @@ warn_log:
   yml_file_not_found: "CreatRecipeUI找不到recipes.yml,将生成一个带示例的文件"
   yml_error: "请检查recipes.yml文件！"
   yml_err_ID: "无效的物品ID：{0}，位于：{1}，跳过配方：{2}"
+
+player_info:
+  command_not_player: "该指令只能由玩家执行。"
+  command_lang: "请指定语言，例如 /lang zh 或 /lang en"
+  command_lang_success: "语言已设置为: {0}"
+  command_lang_err: "不支持的语言: {0}"
+  command_error: "未知指令。"
