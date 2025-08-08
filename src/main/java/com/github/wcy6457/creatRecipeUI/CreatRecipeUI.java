@@ -4,7 +4,7 @@ import com.github.wcy6457.creatRecipeUI.command.CommandHandler;
 import com.github.wcy6457.creatRecipeUI.command.CruTabCompleter;
 import com.github.wcy6457.creatRecipeUI.manager.RecipeManager;
 import com.github.wcy6457.creatRecipeUI.manager.LanguageManager;
-import me.devnatan.inventoryframework.ViewFrame;
+import com.github.wcy6457.creatRecipeUI.manager.UIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class CreatRecipeUI extends JavaPlugin {
 
     public LanguageManager languageManager;
-    public ViewFrame viewFrame;
+    public UIManager uiManager;
 
     @Override
     public void onEnable() {
@@ -30,8 +30,7 @@ public final class CreatRecipeUI extends JavaPlugin {
         //对象rm将从 resources/recipes.yml 加载配方
         rm.registerRecipe();
 
-        this.viewFrame = ViewFrame.create(this);
-        //启动UI框架
+        this.uiManager =new UIManager(this);
 
         PluginCommand cruCommand = getCommand("cru");
         if (cruCommand != null) {

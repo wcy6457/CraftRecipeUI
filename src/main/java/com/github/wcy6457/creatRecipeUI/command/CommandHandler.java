@@ -29,7 +29,7 @@ public class CommandHandler implements CommandExecutor {
 
         switch (args[0].toLowerCase()) {
             case "menu" -> {
-                // TODO: 打开菜单逻辑
+                //TODO
                 player.sendMessage("菜单功能尚未实现。");
             }
             case "lang" -> {
