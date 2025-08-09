@@ -22,7 +22,7 @@ public class CruTabCompleter implements TabCompleter {
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("lang")) {
-            return Arrays.asList("zh_cn", "en_us");
+            return Arrays.asList("zh_cn", "en_us" , "reload");
         }
 
         return Collections.emptyList();

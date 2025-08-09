@@ -44,6 +44,8 @@ public class CommandHandler implements CommandExecutor {
 
                     plugin.languageManager.reload(lang);
                     player.sendMessage(plugin.languageManager.get("player_info.command_lang_success", lang));
+                } else if (lang.equals("reload")){
+                    plugin.languageManager.reload(plugin.languageManager.getCurrentLocale());
                 } else {
                     player.sendMessage(plugin.languageManager.get("player_info.command_lang_err", lang));
                 }

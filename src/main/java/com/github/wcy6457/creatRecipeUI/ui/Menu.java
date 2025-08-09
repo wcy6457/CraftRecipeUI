@@ -7,8 +7,8 @@ import me.devnatan.inventoryframework.context.RenderContext;
 import me.devnatan.inventoryframework.context.SlotClickContext;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import static com.github.wcy6457.creatRecipeUI.utlis.Named.named;
 
 public final class Menu extends View {
 
@@ -29,12 +29,7 @@ public final class Menu extends View {
     @Override
     public void onFirstRender(@NotNull RenderContext render) {
 
-        ItemStack table = new ItemStack(Material.CRAFTING_TABLE);
-        ItemMeta itemMeta = table.getItemMeta();
-        itemMeta.setDisplayName(plugin.languageManager.get("gui.icon_addRecipe"));
-        table.setItemMeta(itemMeta);
-
-        render.slot(0, table)
+        render.slot(0 , named(new ItemStack(Material.CRAFTING_TABLE) , plugin.languageManager.get("gui.icon_addRecipe")))
                 .onClick(click -> {
                     click.openForPlayer(AddRecipeUI.class);
         });
