@@ -40,16 +40,32 @@ TODO:
 
 ## 🧪 兼容性与版本支持 | Compatibility
 
-> 适用于 Minecraft 1.xx - 1.xx，基于 Spigot API 构建  
-> Compatible with Minecraft versions 1.xx to 1.xx, built on Spigot API  
-> ⚠️ 其他平台（如 PaperMC）尚未进行适配测试
+> ✅ 当前项目基于 Bukkit 1.21.6 版本开发  
+> ✅ 已在 Spigot 和 Paper 平台上测试运行良好  
+> ✅ 使用 Spigot API 构建，兼容 Minecraft 1.21.6  
+> ⚠️ 其他平台尚未进行适配测试
+
+> ✅ Built on Bukkit 1.21.6  
+> ✅ Tested and confirmed working on both Spigot and Paper  
+> ✅ Compatible with Minecraft 1.21.6 via Spigot API  
+> ⚠️ Other platforms have not been tested yet
+
+---
+
+## 🧰 使用的开源框架 | Open Source Framework
+
+本项目使用了 [Inventory Framework](https://github.com/DevNatan/inventory-framework) 作为 UI 构建基础。该框架基于 MIT 协议，提供高层次、稳定且安全的 API，用于构建自定义界面与交互逻辑。
+
+> This project utilizes the [Inventory Framework](https://github.com/DevNatan/inventory-framework), an open-source UI framework licensed under the MIT License. It offers a high-level, robust, and secure API for building custom inventory interfaces and interaction logic.
 
 ---
 
 ## 📬 联系与反馈 | Contact & Feedback
 
-如有建议或问题，欢迎通过 Issue 提交或通过 [your_contact_info] 联系我。  
-Feel free to submit an issue or reach out via [your_contact_info] for feedback or suggestions.
+如有建议或问题，欢迎通过 Issue 提交或通过邮箱联系我：  
+Feel free to submit an issue or reach out via email:
+
+📧 wcy645748700@gmail.com
 
 ---
 
