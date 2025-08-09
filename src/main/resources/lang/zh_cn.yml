@@ -3,6 +3,8 @@ version: 1
 gui:
   confirm: "确认"
   title_menu: "菜单"
+  icon_addRecipe: "添加配方"
+  title_addRecipeUI: "添加配方"
 
 log:
   plugin_onEnable: "CreatRecipeUI 正在启动......"
