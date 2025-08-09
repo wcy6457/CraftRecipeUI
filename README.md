@@ -5,6 +5,13 @@ CraftRecipeUI is a user-friendly Spigot plugin that lets you add or remove Minec
 
 ---
 
+## 🙌 鸣谢 | Credits
+
+插件中某些玩家头像图标素材来自 [Minecraft-Heads.com](https://minecraft-heads.com)，特此鸣谢。  
+A special thanks to [Minecraft-Heads.com](https://minecraft-heads.com) for providing player head assets used in the plugin.
+
+---
+
 ## 🛠 开发状态 | Development Status
 
 项目正在积极迭代中：
