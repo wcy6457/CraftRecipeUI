@@ -7,6 +7,7 @@ gui:
   title_addRecipe: "添加配方"
   icon_to: "结果为"
   icon_back: "返回"
+  icon_language: "语言"
 
 log:
   plugin_onEnable: "CreatRecipeUI 正在启动......"

@@ -9,7 +9,7 @@ import me.devnatan.inventoryframework.context.SlotContext;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import static com.github.wcy6457.creatRecipeUI.utlis.Named.named;
+import static com.github.wcy6457.creatRecipeUI.utlis.NamedUtil.named;
 
 public final class AddRecipeUI extends View {
 
