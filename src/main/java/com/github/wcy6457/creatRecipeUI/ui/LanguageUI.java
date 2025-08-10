@@ -1,29 +1,26 @@
 package com.github.wcy6457.creatRecipeUI.ui;
 
 import com.github.wcy6457.creatRecipeUI.CreatRecipeUI;
-import com.github.wcy6457.creatRecipeUI.utlis.PLAYER_HEAD;
-import me.devnatan.inventoryframework.*;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfigBuilder;
+import me.devnatan.inventoryframework.ViewType;
 import me.devnatan.inventoryframework.context.CloseContext;
 import me.devnatan.inventoryframework.context.RenderContext;
 import me.devnatan.inventoryframework.context.SlotClickContext;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
-import static com.github.wcy6457.creatRecipeUI.utlis.Icon_HeadUtil.getHead;
-import static com.github.wcy6457.creatRecipeUI.utlis.NamedUtil.named;
 
-public final class Menu extends View {
 
+public class LanguageUI extends View {
     private final CreatRecipeUI plugin;
 
-    public Menu(CreatRecipeUI plugin) {
+    public LanguageUI(CreatRecipeUI plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void onInit(@NotNull ViewConfigBuilder config) {
         config.title(plugin.languageManager.get("gui.title_menu"));
-        config.size(3);
+        config.size(1);
         config.type(ViewType.CHEST);
         config.cancelOnClick();
     }
@@ -31,11 +28,6 @@ public final class Menu extends View {
     @Override
     public void onFirstRender(@NotNull RenderContext render) {
 
-        render.slot(0 , named(new ItemStack(Material.CRAFTING_TABLE) , plugin.languageManager.get("gui.icon_addRecipe")))
-                .onClick(click -> click.openForPlayer(AddRecipeUI.class));
-
-        render.slot(1 , getHead(PLAYER_HEAD.CHINA , plugin.languageManager.get("gui.icon_language")))
-                .onClick(click -> click.openForPlayer(LanguageUI.class));
     }
 
     @Override
