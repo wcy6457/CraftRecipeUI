@@ -11,8 +11,10 @@ gui:
 
 log:
   plugin_onEnable: "CreatRecipeUI 正在启动......"
+  plugin_onDisable: "CreatRecipeUI 正在关闭"
   load_recipe_success: "共有{0}个配方加载成功"
   recipe_before_reg: "CreatRecipeUI从yml中加载了{0}个配方数据，即将向bukkit注册"
+  headIcon_onInit: "正在初始化ui所用头颅......"
 
 warn_log:
   load_recipe_err: "共有{0}个配方加载失败"
