@@ -1,0 +1,17 @@
+name: RecipeSmith
+version: '${version}'
+
+main: com.github.wcy6457.recipeSmith.RecipeSmith
+api-version: '26.1.2'
+load: POSTWORLD
+
+permissions:
+  recipesmith.view:
+    description: View RecipeSmith recipe changes.
+    default: true
+  recipesmith.admin:
+    description: Manage recipes through RecipeSmith.
+    default: op
+  recipesmith.reload:
+    description: Reload RecipeSmith recipes.yml.
+    default: op
