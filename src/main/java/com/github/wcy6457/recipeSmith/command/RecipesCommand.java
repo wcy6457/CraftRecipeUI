@@ -1,6 +1,7 @@
 package com.github.wcy6457.recipeSmith.command;
 
 import com.github.wcy6457.recipeSmith.gui.RecipeGuiManager;
+import com.github.wcy6457.recipeSmith.i18n.LanguageService;
 import com.github.wcy6457.recipeSmith.model.ManagedRecipeType;
 import com.github.wcy6457.recipeSmith.model.RecipeCatalogEntry;
 import com.github.wcy6457.recipeSmith.model.RecipeDefinition;
@@ -26,11 +27,13 @@ import java.util.Locale;
 public final class RecipesCommand implements BasicCommand {
     private final RecipeService recipeService;
     private final RecipeGuiManager guiManager;
+    private final LanguageService language;
     private final Plugin plugin;
 
-    public RecipesCommand(RecipeService recipeService, RecipeGuiManager guiManager, Plugin plugin) {
+    public RecipesCommand(RecipeService recipeService, RecipeGuiManager guiManager, LanguageService language, Plugin plugin) {
         this.recipeService = recipeService;
         this.guiManager = guiManager;
+        this.language = language;
         this.plugin = plugin;
     }
 
@@ -54,6 +57,7 @@ public final class RecipesCommand implements BasicCommand {
             }
             case "list" -> list(sender);
             case "reload" -> reload(sender);
+            case "language", "lang" -> language(sender, args);
             case "add" -> add(sender, args);
             case "replace" -> replace(sender, args);
             case "disable" -> disable(sender, args);
@@ -65,7 +69,11 @@ public final class RecipesCommand implements BasicCommand {
     public Collection<String> suggest(@NotNull CommandSourceStack commandSourceStack, @NotNull String[] args) {
         ArrayList<String> suggestions = new ArrayList<>();
         if (args.length <= 1) {
-            addMatching(suggestions, args.length == 0 ? "" : args[0], List.of("view", "admin", "list", "reload", "add", "replace", "disable"));
+            addMatching(suggestions, args.length == 0 ? "" : args[0], List.of("view", "admin", "list", "reload", "language", "add", "replace", "disable"));
+            return suggestions;
+        }
+        if (args.length == 2 && (args[0].equalsIgnoreCase("language") || args[0].equalsIgnoreCase("lang"))) {
+            addMatching(suggestions, args[1], List.copyOf(language.availableLanguages()));
             return suggestions;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("add")) {
@@ -94,13 +102,19 @@ public final class RecipesCommand implements BasicCommand {
             return;
         }
         List<RecipeCatalogEntry> entries = recipeService.catalog().entries();
-        sender.sendMessage(Component.text("RecipeSmith changes: " + entries.size(), NamedTextColor.AQUA));
+        sender.sendMessage(language.component("command.changes-count", NamedTextColor.AQUA, LanguageService.arg("count", entries.size())));
         entries.stream().limit(20).forEach(entry -> {
             NamedTextColor color = entry.invalid() ? NamedTextColor.RED : NamedTextColor.GRAY;
-            sender.sendMessage(Component.text("- " + entry.id() + " " + entry.operation().yamlName() + " " + entry.key(), color));
+            sender.sendMessage(language.component(
+                    "command.list-entry",
+                    color,
+                    LanguageService.arg("id", entry.id()),
+                    LanguageService.arg("operation", language.operationName(entry.operation())),
+                    LanguageService.arg("key", entry.key())
+            ));
         });
         if (entries.size() > 20) {
-            sender.sendMessage(Component.text("Open /recipes view for the full list.", NamedTextColor.GRAY));
+            sender.sendMessage(language.component("command.list-more", NamedTextColor.GRAY));
         }
     }
 
@@ -108,8 +122,27 @@ public final class RecipesCommand implements BasicCommand {
         if (!require(sender, RecipeGuiManager.PERMISSION_RELOAD)) {
             return;
         }
-        sender.sendMessage(Component.text("Reloading RecipeSmith YAML...", NamedTextColor.YELLOW));
-        recipeService.reloadFromDisk().thenRun(() -> sender.sendMessage(Component.text("RecipeSmith YAML reloaded.", NamedTextColor.GREEN)));
+        sender.sendMessage(language.component("command.reloading", NamedTextColor.YELLOW));
+        language.load();
+        recipeService.reloadFromDisk().thenRun(() -> sender.sendMessage(language.component("command.reloaded", NamedTextColor.GREEN)));
+    }
+
+    private void language(CommandSender sender, String[] args) {
+        if (!require(sender, RecipeGuiManager.PERMISSION_LANGUAGE)) {
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(this.language.component("command.language-current", NamedTextColor.AQUA, LanguageService.arg("language", this.language.language())));
+            sender.sendMessage(this.language.component("command.language-available", NamedTextColor.GRAY, LanguageService.arg("languages", String.join(", ", this.language.availableLanguages()))));
+            sender.sendMessage(this.language.component("command.language-usage", NamedTextColor.GRAY));
+            return;
+        }
+        String requestedLanguage = args[1];
+        if (!this.language.setLanguage(requestedLanguage)) {
+            sender.sendMessage(this.language.component("command.language-missing", NamedTextColor.RED, LanguageService.arg("language", requestedLanguage)));
+            return;
+        }
+        sender.sendMessage(this.language.component("command.language-set", NamedTextColor.GREEN, LanguageService.arg("language", this.language.language())));
     }
 
     private void add(CommandSender sender, String[] args) {
@@ -118,14 +151,14 @@ public final class RecipesCommand implements BasicCommand {
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /recipes add <type>", NamedTextColor.RED));
+            sender.sendMessage(language.component("command.usage-add", NamedTextColor.RED));
             return;
         }
         try {
             ManagedRecipeType type = ManagedRecipeType.fromYaml(args[1]);
             guiManager.openEditor(player, recipeService.createDraft(type), 0, true);
         } catch (RuntimeException exception) {
-            sender.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+            sender.sendMessage(language.component("message.save-invalid", NamedTextColor.RED, LanguageService.arg("reason", exception.getMessage())));
         }
     }
 
@@ -135,14 +168,14 @@ public final class RecipesCommand implements BasicCommand {
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /recipes replace <source-key>", NamedTextColor.RED));
+            sender.sendMessage(language.component("command.usage-replace", NamedTextColor.RED));
             return;
         }
         try {
             NamespacedKey key = RecipeKeys.parse(args[1], plugin);
             Recipe recipe = Bukkit.getRecipe(key);
             if (recipe == null) {
-                sender.sendMessage(Component.text("Recipe not found: " + key, NamedTextColor.RED));
+                sender.sendMessage(language.component("command.recipe-not-found", NamedTextColor.RED, LanguageService.arg("key", key)));
                 return;
             }
             RecipeDefinition draft = recipeService.createReplaceDraft(recipe);
@@ -151,7 +184,7 @@ public final class RecipesCommand implements BasicCommand {
             }
             guiManager.openEditor(player, draft, 0, true);
         } catch (RuntimeException exception) {
-            sender.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+            sender.sendMessage(language.component("message.save-invalid", NamedTextColor.RED, LanguageService.arg("reason", exception.getMessage())));
         }
     }
 
@@ -160,7 +193,7 @@ public final class RecipesCommand implements BasicCommand {
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /recipes disable <source-key>", NamedTextColor.RED));
+            sender.sendMessage(language.component("command.usage-disable", NamedTextColor.RED));
             return;
         }
         try {
@@ -168,27 +201,24 @@ public final class RecipesCommand implements BasicCommand {
             RecipeDefinition draft = recipeService.createDisableDraft(key);
             recipeService.saveChange(draft, 0).thenAccept(result -> {
                 NamedTextColor color = result.success() ? NamedTextColor.GREEN : NamedTextColor.RED;
-                sender.sendMessage(Component.text(result.message(), color));
+                sender.sendMessage(saveResult(result, color));
             });
         } catch (RuntimeException exception) {
-            sender.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+            sender.sendMessage(language.component("message.save-invalid", NamedTextColor.RED, LanguageService.arg("reason", exception.getMessage())));
         }
     }
 
     private void help(CommandSender sender) {
-        sender.sendMessage(Component.text("/recipes view", NamedTextColor.GRAY));
-        sender.sendMessage(Component.text("/recipes admin", NamedTextColor.GRAY));
-        sender.sendMessage(Component.text("/recipes add <type>", NamedTextColor.GRAY));
-        sender.sendMessage(Component.text("/recipes replace <source-key>", NamedTextColor.GRAY));
-        sender.sendMessage(Component.text("/recipes disable <source-key>", NamedTextColor.GRAY));
-        sender.sendMessage(Component.text("/recipes reload", NamedTextColor.GRAY));
+        for (String line : language.list("command.help")) {
+            sender.sendMessage(Component.text(line, NamedTextColor.GRAY));
+        }
     }
 
     private boolean require(CommandSender sender, String permission) {
         if (sender.hasPermission(permission)) {
             return true;
         }
-        sender.sendMessage(Component.text("Missing permission: " + permission, NamedTextColor.RED));
+        sender.sendMessage(language.component("command.missing-permission", NamedTextColor.RED, LanguageService.arg("permission", permission)));
         return false;
     }
 
@@ -196,8 +226,15 @@ public final class RecipesCommand implements BasicCommand {
         if (sender instanceof Player player) {
             return player;
         }
-        sender.sendMessage(Component.text("This command requires a player.", NamedTextColor.RED));
+        sender.sendMessage(language.component("command.player-only", NamedTextColor.RED));
         return null;
+    }
+
+    private Component saveResult(RecipeService.SaveResult result, NamedTextColor color) {
+        List<LanguageService.Arg> args = result.placeholders().entrySet().stream()
+                .map(entry -> LanguageService.arg(entry.getKey(), entry.getValue()))
+                .toList();
+        return language.component(result.messageKey(), color, args.toArray(LanguageService.Arg[]::new));
     }
 
     private int pageArg(String[] args, int index) {

@@ -138,7 +138,7 @@ public final class RecipeService {
                             plugin.getLogger().log(Level.SEVERE, "Could not save recipes.yml", exception);
                             return null;
                         }));
-                result.complete(SaveResult.saved("Saved " + next.id()));
+                result.complete(SaveResult.saved(next.id()));
             } catch (RuntimeException exception) {
                 result.complete(SaveResult.invalid(exception.getMessage()));
             }
@@ -165,7 +165,7 @@ public final class RecipeService {
                         plugin.getLogger().log(Level.SEVERE, "Could not save recipes.yml", exception);
                         return null;
                     }));
-            result.complete(SaveResult.saved("Deleted " + id));
+            result.complete(SaveResult.deleted(id));
         });
         return result;
     }
@@ -422,17 +422,25 @@ public final class RecipeService {
         Bukkit.getScheduler().runTask(plugin, runnable);
     }
 
-    public record SaveResult(boolean success, boolean conflict, String message) {
-        public static SaveResult saved(String message) {
-            return new SaveResult(true, false, message);
+    public record SaveResult(boolean success, boolean conflict, String messageKey, Map<String, String> placeholders) {
+        public static SaveResult saved(String id) {
+            return new SaveResult(true, false, "message.save-success", Map.of("id", id));
+        }
+
+        public static SaveResult deleted(String id) {
+            return new SaveResult(true, false, "message.delete-success", Map.of("id", id));
         }
 
         public static SaveResult conflict(String message) {
-            return new SaveResult(false, true, message);
+            return new SaveResult(false, true, "message.save-conflict", Map.of("reason", safe(message)));
         }
 
         public static SaveResult invalid(String message) {
-            return new SaveResult(false, false, message);
+            return new SaveResult(false, false, "message.save-invalid", Map.of("reason", safe(message)));
+        }
+
+        private static String safe(String message) {
+            return message == null || message.isBlank() ? "unknown" : message;
         }
     }
 }

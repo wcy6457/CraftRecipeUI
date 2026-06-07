@@ -15,3 +15,6 @@ permissions:
   recipesmith.reload:
     description: Reload RecipeSmith recipes.yml.
     default: op
+  recipesmith.language:
+    description: Switch RecipeSmith language.
+    default: op

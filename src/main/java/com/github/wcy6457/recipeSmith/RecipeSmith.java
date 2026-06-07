@@ -2,6 +2,7 @@ package com.github.wcy6457.recipeSmith;
 
 import com.github.wcy6457.recipeSmith.command.RecipesCommand;
 import com.github.wcy6457.recipeSmith.gui.RecipeGuiManager;
+import com.github.wcy6457.recipeSmith.i18n.LanguageService;
 import com.github.wcy6457.recipeSmith.service.RecipeService;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,14 +14,16 @@ public final class RecipeSmith extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        LanguageService languageService = new LanguageService(this);
+        languageService.load();
         recipeService = new RecipeService(this);
-        RecipeGuiManager guiManager = new RecipeGuiManager(this, recipeService);
+        RecipeGuiManager guiManager = new RecipeGuiManager(this, recipeService, languageService);
         getServer().getPluginManager().registerEvents(guiManager, this);
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(
                 "recipes",
-                "View and manage server recipe changes",
+                languageService.plain("command.description"),
                 List.of("recipesmith"),
-                new RecipesCommand(recipeService, guiManager, this)
+                new RecipesCommand(recipeService, guiManager, languageService, this)
         ));
         recipeService.reloadFromDisk();
     }

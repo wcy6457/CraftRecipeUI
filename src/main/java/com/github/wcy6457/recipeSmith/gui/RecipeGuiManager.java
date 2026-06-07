@@ -1,6 +1,7 @@
 package com.github.wcy6457.recipeSmith.gui;
 
 import com.github.wcy6457.recipeSmith.model.AdminRecipeSession;
+import com.github.wcy6457.recipeSmith.i18n.LanguageService;
 import com.github.wcy6457.recipeSmith.model.ManagedRecipeType;
 import com.github.wcy6457.recipeSmith.model.RecipeCatalogEntry;
 import com.github.wcy6457.recipeSmith.model.RecipeChoiceDefinition;
@@ -38,6 +39,7 @@ public final class RecipeGuiManager implements Listener {
     public static final String PERMISSION_VIEW = "recipesmith.view";
     public static final String PERMISSION_ADMIN = "recipesmith.admin";
     public static final String PERMISSION_RELOAD = "recipesmith.reload";
+    public static final String PERMISSION_LANGUAGE = "recipesmith.language";
 
     private static final int PAGE_SIZE = 45;
     private static final int SLOT_PREVIOUS = 45;
@@ -57,24 +59,26 @@ public final class RecipeGuiManager implements Listener {
 
     private final Plugin plugin;
     private final RecipeService recipeService;
+    private final LanguageService language;
     private final NamespacedKey guiItemKey;
 
-    public RecipeGuiManager(Plugin plugin, RecipeService recipeService) {
+    public RecipeGuiManager(Plugin plugin, RecipeService recipeService, LanguageService language) {
         this.plugin = plugin;
         this.recipeService = recipeService;
+        this.language = language;
         this.guiItemKey = new NamespacedKey(plugin, "gui_item");
     }
 
     public void openCatalog(Player player, boolean admin, int page) {
         if (!canView(player)) {
-            player.sendMessage(Component.text("You do not have permission to view recipe changes.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.no-permission-view", NamedTextColor.RED));
             return;
         }
         List<RecipeCatalogEntry> entries = recipeService.catalog().entries();
         int maxPage = Math.max(0, (entries.size() - 1) / PAGE_SIZE);
         int safePage = Math.max(0, Math.min(page, maxPage));
         CatalogHolder holder = new CatalogHolder(admin, safePage);
-        Inventory inventory = createInventory(holder, 54, admin ? "RecipeSmith Changes (Admin)" : "RecipeSmith Changes");
+        Inventory inventory = createInventory(holder, 54, language.plain(admin ? "gui.catalog-title-admin" : "gui.catalog-title"));
         holder.inventory(inventory);
         int start = safePage * PAGE_SIZE;
         for (int index = 0; index < PAGE_SIZE && start + index < entries.size(); index++) {
@@ -82,55 +86,55 @@ public final class RecipeGuiManager implements Listener {
             inventory.setItem(index, catalogItem(entry, admin));
             holder.entry(index, entry.id());
         }
-        inventory.setItem(SLOT_PREVIOUS, button(Material.ARROW, "Previous Page", NamedTextColor.YELLOW, List.of("Page " + (safePage + 1))));
-        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, "Close", NamedTextColor.RED, List.of()));
-        inventory.setItem(SLOT_NEXT, button(Material.ARROW, "Next Page", NamedTextColor.YELLOW, List.of("Page " + (safePage + 1))));
+        inventory.setItem(SLOT_PREVIOUS, button(Material.ARROW, language.plain("gui.previous-page"), NamedTextColor.YELLOW, List.of(language.plain("gui.page", LanguageService.arg("page", safePage + 1)))));
+        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, language.plain("gui.close"), NamedTextColor.RED, List.of()));
+        inventory.setItem(SLOT_NEXT, button(Material.ARROW, language.plain("gui.next-page"), NamedTextColor.YELLOW, List.of(language.plain("gui.page", LanguageService.arg("page", safePage + 1)))));
         if (admin) {
-            inventory.setItem(SLOT_BACK, button(Material.CRAFTING_TABLE, "Admin Menu", NamedTextColor.GREEN, List.of()));
+            inventory.setItem(SLOT_BACK, button(Material.CRAFTING_TABLE, language.plain("gui.admin-menu"), NamedTextColor.GREEN, List.of()));
         }
         player.openInventory(inventory);
     }
 
     public void openAdmin(Player player) {
         if (!canAdmin(player)) {
-            player.sendMessage(Component.text("You do not have permission to manage recipes.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.no-permission-admin", NamedTextColor.RED));
             return;
         }
         AdminHolder holder = new AdminHolder();
-        Inventory inventory = createInventory(holder, 54, "RecipeSmith Admin");
+        Inventory inventory = createInventory(holder, 54, language.plain("gui.admin-title"));
         holder.inventory(inventory);
-        inventory.setItem(10, button(Material.CRAFTING_TABLE, "Create Shaped", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(11, button(Material.CHEST, "Create Shapeless", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(12, button(Material.FURNACE, "Create Furnace", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(13, button(Material.BLAST_FURNACE, "Create Blasting", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(14, button(Material.SMOKER, "Create Smoking", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(15, button(Material.CAMPFIRE, "Create Campfire", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(16, button(Material.STONECUTTER, "Create Stonecutting", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(19, button(Material.SMITHING_TABLE, "Create Smithing Transform", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(20, button(Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, "Create Smithing Trim", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(21, button(Material.PURPLE_SHULKER_BOX, "Create Transmute", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(24, button(Material.BOOK, "View RecipeSmith Changes", NamedTextColor.AQUA, List.of("Left click to browse", "Right click entries there to delete")));
-        inventory.setItem(25, button(Material.COMPASS, "Find Recipes For Held Result", NamedTextColor.AQUA, List.of("Left click entries to replace", "Right click entries to disable")));
-        inventory.setItem(31, button(Material.REDSTONE, "Reload YAML", NamedTextColor.YELLOW, List.of("Requires " + PERMISSION_RELOAD)));
-        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, "Close", NamedTextColor.RED, List.of()));
+        inventory.setItem(10, button(Material.CRAFTING_TABLE, language.plain("gui.create-shaped"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(11, button(Material.CHEST, language.plain("gui.create-shapeless"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(12, button(Material.FURNACE, language.plain("gui.create-furnace"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(13, button(Material.BLAST_FURNACE, language.plain("gui.create-blasting"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(14, button(Material.SMOKER, language.plain("gui.create-smoking"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(15, button(Material.CAMPFIRE, language.plain("gui.create-campfire"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(16, button(Material.STONECUTTER, language.plain("gui.create-stonecutting"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(19, button(Material.SMITHING_TABLE, language.plain("gui.create-smithing-transform"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(20, button(Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, language.plain("gui.create-smithing-trim"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(21, button(Material.PURPLE_SHULKER_BOX, language.plain("gui.create-transmute"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(24, button(Material.BOOK, language.plain("gui.view-changes"), NamedTextColor.AQUA, language.list("gui.view-changes-lore")));
+        inventory.setItem(25, button(Material.COMPASS, language.plain("gui.find-held-result"), NamedTextColor.AQUA, language.list("gui.find-held-result-lore")));
+        inventory.setItem(31, button(Material.REDSTONE, language.plain("gui.reload-yaml"), NamedTextColor.YELLOW, List.of(language.plain("gui.requires-permission", LanguageService.arg("permission", PERMISSION_RELOAD)))));
+        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, language.plain("gui.close"), NamedTextColor.RED, List.of()));
         player.openInventory(inventory);
     }
 
     public void openSourceRecipes(Player player, int page) {
         if (!canAdmin(player)) {
-            player.sendMessage(Component.text("You do not have permission to manage recipes.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.no-permission-admin", NamedTextColor.RED));
             return;
         }
         ItemStack hand = player.getInventory().getItemInMainHand();
         if (hand.isEmpty()) {
-            player.sendMessage(Component.text("Hold a result item first.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.hold-result", NamedTextColor.RED));
             return;
         }
         List<Recipe> recipes = recipeService.recipesFor(hand);
         int maxPage = Math.max(0, (recipes.size() - 1) / PAGE_SIZE);
         int safePage = Math.max(0, Math.min(page, maxPage));
         SourceHolder holder = new SourceHolder(safePage, recipes);
-        Inventory inventory = createInventory(holder, 54, "Recipes For Held Result");
+        Inventory inventory = createInventory(holder, 54, language.plain("gui.source-title"));
         holder.inventory(inventory);
         int start = safePage * PAGE_SIZE;
         for (int index = 0; index < PAGE_SIZE && start + index < recipes.size(); index++) {
@@ -140,21 +144,21 @@ public final class RecipeGuiManager implements Listener {
             inventory.setItem(index, sourceRecipeItem(recipe, key, type));
             holder.slot(index, start + index);
         }
-        inventory.setItem(SLOT_PREVIOUS, button(Material.ARROW, "Previous Page", NamedTextColor.YELLOW, List.of()));
-        inventory.setItem(SLOT_BACK, button(Material.CRAFTING_TABLE, "Admin Menu", NamedTextColor.GREEN, List.of()));
-        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, "Close", NamedTextColor.RED, List.of()));
-        inventory.setItem(SLOT_NEXT, button(Material.ARROW, "Next Page", NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(SLOT_PREVIOUS, button(Material.ARROW, language.plain("gui.previous-page"), NamedTextColor.YELLOW, List.of()));
+        inventory.setItem(SLOT_BACK, button(Material.CRAFTING_TABLE, language.plain("gui.admin-menu"), NamedTextColor.GREEN, List.of()));
+        inventory.setItem(SLOT_CLOSE, button(Material.BARRIER, language.plain("gui.close"), NamedTextColor.RED, List.of()));
+        inventory.setItem(SLOT_NEXT, button(Material.ARROW, language.plain("gui.next-page"), NamedTextColor.YELLOW, List.of()));
         player.openInventory(inventory);
     }
 
     public void openEditor(Player player, RecipeDefinition draft, long expectedRevision, boolean creating) {
         if (!canAdmin(player)) {
-            player.sendMessage(Component.text("You do not have permission to manage recipes.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.no-permission-admin", NamedTextColor.RED));
             return;
         }
         RecipeDefinition workingCopy = draft.copy();
         EditorHolder holder = new EditorHolder(new AdminRecipeSession(UUID.randomUUID(), workingCopy, expectedRevision, creating));
-        Inventory inventory = createInventory(holder, 54, (creating ? "Create " : "Edit ") + workingCopy.type().displayName());
+        Inventory inventory = createInventory(holder, 54, language.plain(creating ? "gui.editor-create-title" : "gui.editor-edit-title", LanguageService.arg("type", language.typeName(workingCopy.type()))));
         holder.inventory(inventory);
         renderEditor(inventory, holder);
         player.openInventory(inventory);
@@ -226,7 +230,7 @@ public final class RecipeGuiManager implements Listener {
                 return;
             }
             if (definition.operation() == RecipeOperation.DISABLE) {
-                player.sendMessage(Component.text("Disable entries can only be deleted or recreated.", NamedTextColor.YELLOW));
+                player.sendMessage(language.component("message.disable-edit-notice", NamedTextColor.YELLOW));
                 return;
             }
             openEditor(player, definition, definition.revision(), false);
@@ -249,11 +253,12 @@ public final class RecipeGuiManager implements Listener {
             case 25 -> openSourceRecipes(player, 0);
             case 31 -> {
                 if (!player.hasPermission(PERMISSION_RELOAD)) {
-                    player.sendMessage(Component.text("You do not have permission to reload recipes.", NamedTextColor.RED));
+                    player.sendMessage(language.component("message.no-permission-reload", NamedTextColor.RED));
                     return;
                 }
-                player.sendMessage(Component.text("Reloading RecipeSmith YAML...", NamedTextColor.YELLOW));
-                recipeService.reloadFromDisk().thenRun(() -> player.sendMessage(Component.text("RecipeSmith YAML reloaded.", NamedTextColor.GREEN)));
+                player.sendMessage(language.component("command.reloading", NamedTextColor.YELLOW));
+                language.load();
+                recipeService.reloadFromDisk().thenRun(() -> player.sendMessage(language.component("command.reloaded", NamedTextColor.GREEN)));
             }
             case SLOT_CLOSE -> player.closeInventory();
             default -> {
@@ -285,7 +290,7 @@ public final class RecipeGuiManager implements Listener {
         Recipe recipe = holder.recipes().get(recipeIndex);
         NamespacedKey key = recipeService.snapshotConverter().keyOf(recipe);
         if (key == null) {
-            player.sendMessage(Component.text("This recipe has no key.", NamedTextColor.RED));
+            player.sendMessage(language.component("message.recipe-no-key", NamedTextColor.RED));
             return;
         }
         if (clickType.isRightClick()) {
@@ -297,7 +302,7 @@ public final class RecipeGuiManager implements Listener {
         try {
             openEditor(player, recipeService.createReplaceDraft(recipe), 0, true);
         } catch (RuntimeException exception) {
-            player.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+            player.sendMessage(language.component("message.save-invalid", NamedTextColor.RED, LanguageService.arg("reason", exception.getMessage())));
         }
     }
 
@@ -328,7 +333,7 @@ public final class RecipeGuiManager implements Listener {
                 recipeService.saveChange(draft, holder.session().expectedRevision()).thenAccept(result -> sendSaveResult(player, result));
                 Bukkit.getScheduler().runTaskLater(plugin, () -> openCatalog(player, true, 0), 2L);
             } catch (RuntimeException exception) {
-                player.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+                player.sendMessage(language.component("message.save-invalid", NamedTextColor.RED, LanguageService.arg("reason", exception.getMessage())));
             }
             return;
         }
@@ -414,37 +419,37 @@ public final class RecipeGuiManager implements Listener {
         RecipeDefinition draft = holder.session().draft();
         inventory.clear();
         fillFrame(inventory);
-        inventory.setItem(4, button(Material.NAME_TAG, draft.id(), NamedTextColor.AQUA, List.of(draft.operation().yamlName(), draft.type().displayName())));
-        inventory.setItem(SLOT_SAVE, button(Material.LIME_CONCRETE, "Save", NamedTextColor.GREEN, List.of("Saves YAML and reapplies recipes")));
-        inventory.setItem(SLOT_CANCEL, button(Material.BARRIER, "Cancel", NamedTextColor.RED, List.of()));
+        inventory.setItem(4, button(Material.NAME_TAG, draft.id(), NamedTextColor.AQUA, List.of(language.operationName(draft.operation()), language.typeName(draft.type()))));
+        inventory.setItem(SLOT_SAVE, button(Material.LIME_CONCRETE, language.plain("gui.save"), NamedTextColor.GREEN, language.list("gui.save-lore")));
+        inventory.setItem(SLOT_CANCEL, button(Material.BARRIER, language.plain("gui.cancel"), NamedTextColor.RED, List.of()));
         ManagedRecipeType type = draft.type();
         if (type == ManagedRecipeType.SHAPED) {
             renderShaped(inventory, draft);
         } else if (type == ManagedRecipeType.SHAPELESS) {
             renderShapeless(inventory, draft);
         } else if (type.isCooking()) {
-            renderSingleInput(inventory, draft, "Input");
-            inventory.setItem(SLOT_EXPERIENCE_DOWN, button(Material.REDSTONE, "Experience -0.5", NamedTextColor.YELLOW, List.of("Current " + draft.experience())));
-            inventory.setItem(SLOT_EXPERIENCE_UP, button(Material.EMERALD, "Experience +0.5", NamedTextColor.YELLOW, List.of("Current " + draft.experience())));
-            inventory.setItem(SLOT_TIME_DOWN, button(Material.CLOCK, "Time -20", NamedTextColor.YELLOW, List.of("Current " + draft.cookingTime() + " ticks")));
-            inventory.setItem(SLOT_TIME_UP, button(Material.CLOCK, "Time +20", NamedTextColor.YELLOW, List.of("Current " + draft.cookingTime() + " ticks")));
+            renderSingleInput(inventory, draft, language.plain("gui.input"));
+            inventory.setItem(SLOT_EXPERIENCE_DOWN, button(Material.REDSTONE, language.plain("gui.experience-down"), NamedTextColor.YELLOW, List.of(language.plain("gui.current-value", LanguageService.arg("value", draft.experience())))));
+            inventory.setItem(SLOT_EXPERIENCE_UP, button(Material.EMERALD, language.plain("gui.experience-up"), NamedTextColor.YELLOW, List.of(language.plain("gui.current-value", LanguageService.arg("value", draft.experience())))));
+            inventory.setItem(SLOT_TIME_DOWN, button(Material.CLOCK, language.plain("gui.time-down"), NamedTextColor.YELLOW, List.of(language.plain("gui.current-time", LanguageService.arg("ticks", draft.cookingTime())))));
+            inventory.setItem(SLOT_TIME_UP, button(Material.CLOCK, language.plain("gui.time-up"), NamedTextColor.YELLOW, List.of(language.plain("gui.current-time", LanguageService.arg("ticks", draft.cookingTime())))));
         } else if (type == ManagedRecipeType.STONECUTTING) {
-            renderSingleInput(inventory, draft, "Input");
+            renderSingleInput(inventory, draft, language.plain("gui.input"));
         } else if (type == ManagedRecipeType.SMITHING_TRANSFORM) {
-            renderSlot(inventory, 19, draft.template() == null ? null : draft.template().exactItem(), "Template (optional)");
-            renderSlot(inventory, 20, draft.base() == null ? null : draft.base().exactItem(), "Base");
-            renderSlot(inventory, 21, draft.addition() == null ? null : draft.addition().exactItem(), "Addition");
+            renderSlot(inventory, 19, draft.template() == null ? null : draft.template().exactItem(), language.plain("gui.template-optional"));
+            renderSlot(inventory, 20, draft.base() == null ? null : draft.base().exactItem(), language.plain("gui.base"));
+            renderSlot(inventory, 21, draft.addition() == null ? null : draft.addition().exactItem(), language.plain("gui.addition"));
             renderResult(inventory, draft);
-            inventory.setItem(SLOT_COPY_DATA, button(Material.REPEATER, "Copy Data Components", draft.copyDataComponents() ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(Boolean.toString(draft.copyDataComponents()))));
+            inventory.setItem(SLOT_COPY_DATA, button(Material.REPEATER, language.plain("gui.copy-data-components"), draft.copyDataComponents() ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(Boolean.toString(draft.copyDataComponents()))));
         } else if (type == ManagedRecipeType.SMITHING_TRIM) {
-            renderSlot(inventory, 19, draft.template() == null ? null : draft.template().exactItem(), "Template");
-            renderSlot(inventory, 20, draft.base() == null ? null : draft.base().exactItem(), "Base");
-            renderSlot(inventory, 21, draft.addition() == null ? null : draft.addition().exactItem(), "Addition");
-            inventory.setItem(SLOT_PATTERN, button(Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, "Trim Pattern", NamedTextColor.YELLOW, List.of(draft.trimPattern())));
-            inventory.setItem(SLOT_COPY_DATA, button(Material.REPEATER, "Copy Data Components", draft.copyDataComponents() ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(Boolean.toString(draft.copyDataComponents()))));
+            renderSlot(inventory, 19, draft.template() == null ? null : draft.template().exactItem(), language.plain("gui.template"));
+            renderSlot(inventory, 20, draft.base() == null ? null : draft.base().exactItem(), language.plain("gui.base"));
+            renderSlot(inventory, 21, draft.addition() == null ? null : draft.addition().exactItem(), language.plain("gui.addition"));
+            inventory.setItem(SLOT_PATTERN, button(Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, language.plain("gui.trim-pattern"), NamedTextColor.YELLOW, List.of(draft.trimPattern())));
+            inventory.setItem(SLOT_COPY_DATA, button(Material.REPEATER, language.plain("gui.copy-data-components"), draft.copyDataComponents() ? NamedTextColor.GREEN : NamedTextColor.RED, List.of(Boolean.toString(draft.copyDataComponents()))));
         } else if (type == ManagedRecipeType.TRANSMUTE) {
-            renderSlot(inventory, 20, draft.input() == null ? null : draft.input().exactItem(), "Input");
-            renderSlot(inventory, 21, draft.material() == null ? null : draft.material().exactItem(), "Material");
+            renderSlot(inventory, 20, draft.input() == null ? null : draft.input().exactItem(), language.plain("gui.input"));
+            renderSlot(inventory, 21, draft.material() == null ? null : draft.material().exactItem(), language.plain("gui.material"));
             renderResult(inventory, draft);
         }
         Integer selectedSlot = holder.selectedSlot();
@@ -456,7 +461,7 @@ public final class RecipeGuiManager implements Listener {
         char[] symbols = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
         for (int index = 0; index < SHAPED_GRID.length; index++) {
             RecipeChoiceDefinition choice = ingredients.get(symbols[index]);
-            renderSlot(inventory, SHAPED_GRID[index], choice == null ? null : choice.exactItem(), "Ingredient " + symbols[index]);
+            renderSlot(inventory, SHAPED_GRID[index], choice == null ? null : choice.exactItem(), language.plain("gui.ingredient", LanguageService.arg("symbol", symbols[index])));
         }
         renderResult(inventory, draft);
     }
@@ -465,7 +470,7 @@ public final class RecipeGuiManager implements Listener {
         List<RecipeChoiceDefinition> ingredients = draft.shapelessIngredients();
         for (int index = 0; index < SHAPELESS_GRID.length; index++) {
             RecipeChoiceDefinition choice = index < ingredients.size() ? ingredients.get(index) : null;
-            renderSlot(inventory, SHAPELESS_GRID[index], choice == null ? null : choice.exactItem(), "Ingredient " + (index + 1));
+            renderSlot(inventory, SHAPELESS_GRID[index], choice == null ? null : choice.exactItem(), language.plain("gui.ingredient-number", LanguageService.arg("number", index + 1)));
         }
         renderResult(inventory, draft);
     }
@@ -476,12 +481,12 @@ public final class RecipeGuiManager implements Listener {
     }
 
     private void renderResult(Inventory inventory, RecipeDefinition draft) {
-        renderSlot(inventory, 24, draft.result(), "Result");
+        renderSlot(inventory, 24, draft.result(), language.plain("gui.result"));
     }
 
     private void renderSlot(Inventory inventory, int slot, ItemStack item, String label) {
         if (item == null || item.isEmpty()) {
-            inventory.setItem(slot, button(Material.LIGHT_GRAY_STAINED_GLASS_PANE, label, NamedTextColor.GRAY, List.of("Left click to select", "Right click to clear")));
+            inventory.setItem(slot, button(Material.LIGHT_GRAY_STAINED_GLASS_PANE, label, NamedTextColor.GRAY, language.list("gui.slot-empty-lore")));
             return;
         }
         inventory.setItem(slot, item.clone());
@@ -490,31 +495,31 @@ public final class RecipeGuiManager implements Listener {
     private void updateSelectionIndicator(Inventory inventory, EditorHolder holder) {
         Integer selectedSlot = holder.selectedSlot();
         if (selectedSlot != null && isEditableSlot(holder.session().draft().type(), selectedSlot)) {
-            inventory.setItem(46, button(Material.YELLOW_STAINED_GLASS_PANE, "Selected Slot " + selectedSlot, NamedTextColor.YELLOW, List.of("Click an item in your inventory to copy it")));
+            inventory.setItem(46, button(Material.YELLOW_STAINED_GLASS_PANE, language.plain("gui.selected-slot", LanguageService.arg("slot", selectedSlot)), NamedTextColor.YELLOW, language.list("gui.selected-slot-lore")));
         } else {
-            inventory.setItem(46, button(Material.GRAY_STAINED_GLASS_PANE, "No Slot Selected", NamedTextColor.GRAY, List.of("Left click an editor slot first")));
+            inventory.setItem(46, button(Material.GRAY_STAINED_GLASS_PANE, language.plain("gui.no-slot-selected"), NamedTextColor.GRAY, language.list("gui.no-slot-selected-lore")));
         }
     }
 
     private String editableSlotLabel(ManagedRecipeType type, int slot) {
         if (slot == 24) {
-            return "Result";
+            return language.plain("gui.result");
         }
         if (type == ManagedRecipeType.SMITHING_TRANSFORM || type == ManagedRecipeType.SMITHING_TRIM) {
             if (slot == 19) {
-                return "Template";
+                return language.plain("gui.template");
             }
             if (slot == 20) {
-                return "Base";
+                return language.plain("gui.base");
             }
             if (slot == 21) {
-                return "Addition";
+                return language.plain("gui.addition");
             }
         }
         if (type == ManagedRecipeType.TRANSMUTE && slot == 21) {
-            return "Material";
+            return language.plain("gui.material");
         }
-        return "Input";
+        return language.plain("gui.input");
     }
 
     private void adjustCooking(RecipeDefinition draft, int slot, ClickType clickType) {
@@ -587,15 +592,15 @@ public final class RecipeGuiManager implements Listener {
         ItemMeta meta = icon.getItemMeta();
         meta.displayName(Component.text(entry.id(), entry.invalid() ? NamedTextColor.RED : NamedTextColor.AQUA));
         ArrayList<Component> lore = new ArrayList<>();
-        lore.add(Component.text(entry.operation().yamlName() + " / " + entry.type().displayName(), NamedTextColor.GRAY));
+        lore.add(Component.text(language.operationName(entry.operation()) + " / " + language.typeName(entry.type()), NamedTextColor.GRAY));
         lore.add(Component.text(entry.key(), NamedTextColor.DARK_GRAY));
         if (entry.sourceKey() != null) {
-            lore.add(Component.text("source: " + entry.sourceKey(), NamedTextColor.DARK_GRAY));
+            lore.add(language.component("gui.source", NamedTextColor.DARK_GRAY, LanguageService.arg("source", entry.sourceKey())));
         }
         if (entry.invalid()) {
-            lore.add(Component.text("invalid: " + entry.message(), NamedTextColor.RED));
+            lore.add(language.component("gui.invalid", NamedTextColor.RED, LanguageService.arg("message", entry.message())));
         } else if (admin) {
-            lore.add(Component.text("Left click edit, right click delete", NamedTextColor.YELLOW));
+            lore.add(language.component("gui.catalog-admin-lore", NamedTextColor.YELLOW));
         }
         meta.lore(lore);
         icon.setItemMeta(meta);
@@ -608,12 +613,12 @@ public final class RecipeGuiManager implements Listener {
             icon = new ItemStack(type == ManagedRecipeType.SMITHING_TRIM ? Material.SMITHING_TABLE : Material.KNOWLEDGE_BOOK);
         }
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(Component.text(key == null ? "Unkeyed recipe" : key.toString(), type == null ? NamedTextColor.RED : NamedTextColor.AQUA));
+        meta.displayName(Component.text(key == null ? language.plain("gui.source-unkeyed") : key.toString(), type == null ? NamedTextColor.RED : NamedTextColor.AQUA));
         ArrayList<Component> lore = new ArrayList<>();
-        lore.add(Component.text(type == null ? "Unsupported API recipe" : type.displayName(), NamedTextColor.GRAY));
+        lore.add(Component.text(type == null ? language.plain("gui.source-unsupported") : language.typeName(type), NamedTextColor.GRAY));
         if (type != null) {
-            lore.add(Component.text("Left click replace", NamedTextColor.YELLOW));
-            lore.add(Component.text("Right click disable", NamedTextColor.YELLOW));
+            lore.add(language.component("gui.source-replace", NamedTextColor.YELLOW));
+            lore.add(language.component("gui.source-disable", NamedTextColor.YELLOW));
         }
         meta.lore(lore);
         icon.setItemMeta(meta);
@@ -680,7 +685,10 @@ public final class RecipeGuiManager implements Listener {
 
     private void sendSaveResult(Player player, RecipeService.SaveResult result) {
         NamedTextColor color = result.success() ? NamedTextColor.GREEN : result.conflict() ? NamedTextColor.YELLOW : NamedTextColor.RED;
-        player.sendMessage(Component.text(result.message(), color));
+        List<LanguageService.Arg> args = result.placeholders().entrySet().stream()
+                .map(entry -> LanguageService.arg(entry.getKey(), entry.getValue()))
+                .toList();
+        player.sendMessage(language.component(result.messageKey(), color, args.toArray(LanguageService.Arg[]::new)));
     }
 
     private abstract static class RecipeSmithHolder implements InventoryHolder {
